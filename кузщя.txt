@@ -1,0 +1,109 @@
+для просмотра товара сначала создается
+tablelayout
+для просмотра товара flowlayout
+и потом для кнопок и label tablelayout 
+
+ПросмтотрТоваров:
+}
+       public ПросмотрТоваров()
+        {
+            InitializeComponent();
+            Search.Text = "";
+             
+        }
+
+        private void ПросмотрТоваров_Load(object sender, EventArgs e)
+        {
+            LoadProducts();
+        }
+
+        private void LoadProducts()
+        {
+            Товары.Controls.Clear();
+            foreach (var el in ПросмотрТоваров1.GetListProduct(Search.Text))
+            {
+                Товары.Controls.Add(el);
+            }
+        }
+
+        private void Add_Click(object sender, EventArgs e)
+        {
+            
+            ДобавитьТовар добавитьТовар = new ДобавитьТовар();
+            this.Hide();
+            connection.Mode = false;
+            добавитьТовар.ShowDialog();
+            this.Show();
+        }
+
+        private void Search_TextChanged(object sender, EventArgs e)
+        {
+            LoadProducts();
+        }
+
+
+        private void Exit_Click(object sender, EventArgs e)
+        {
+            Авторизация авторизация = new Авторизация();
+            //connection.Mode = true;
+            авторизация.ShowDialog();
+            this.Show();
+        }
+    }
+} 
+
+
+В юсерконтрол:
+{
+        public ПросмотрТоваров1(string descrip = null, string coll = null)    
+        {
+            InitializeComponent();
+            label1.Text = descrip;
+            label2.Text = coll;
+            
+        }
+
+        public static List<ПросмотрТоваров1> GetListProduct(string search)
+        {
+            string query = $"select * from Product where ProductArticleNumber like '%{search}%'" +
+                $"or ProductName like '%{search}%' or ProductDescription like '%{search}%'";
+
+            List<ПросмотрТоваров1> list = new List<ПросмотрТоваров1>();
+
+            
+            string opis;
+            string cnt;
+
+            using (SqlConnection conn = new SqlConnection(connection.Connection))
+            {
+                conn.Open();
+                SqlCommand command = new SqlCommand(query, conn);
+                SqlDataReader rd = command.ExecuteReader();
+
+                while (rd.Read())
+                {
+                    string strDescription = $"{rd["ProductDescription"].ToString()} \n " +
+                                            $"Производитель: {rd["ProductManufacturer"].ToString()} \n " +
+                                            $"Цена: {rd["ProductCost"].ToString()}";
+                    string path = null;
+                    
+                    ПросмотрТоваров1 product = new ПросмотрТоваров1(pict, strDescription, rd["ProductQuantityInStock"].ToString());
+
+                    list.Add(product);
+                }
+            }
+            return list;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ДобавитьТовар добавитьТовар = new ДобавитьТовар();
+            connection.Mode = true;
+            добавитьТовар.ShowDialog();
+            this.Show();
+        }
+
+}
+
+В папке connection добавить:
+public static bool Mode = false;
