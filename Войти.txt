@@ -1,0 +1,29 @@
+namespace Variant6
+{
+    public partial class Sign : Form
+    {
+        public Sign()
+        {
+            InitializeComponent();
+        }
+
+        private void bt_Sign_Click(object sender, EventArgs e)
+        {
+            string query = $"select * from [dbo].[users] where [КодЧеловека] = {tb_Login.Text} and [пароль] = '{tb_Password.Text}'";
+            using (SqlConnection conn = new SqlConnection(Connection.StrConn))
+            {
+                conn.Open();
+
+                SqlCommand command = new SqlCommand(query, conn);
+
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    string id = reader["КодЧеловека"].ToString();
+                    ОкноОрганизатора окноОрганизатора = new ОкноОрганизатора(id);
+                    окноОрганизатора.ShowDialog();
+                }
+            }
+        }
+    }
+}
